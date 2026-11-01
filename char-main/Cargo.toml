@@ -1,0 +1,47 @@
+[package]
+name = "vyges-char"
+version = "0.1.53"
+edition = "2021"
+description = "Standard-cell timing & power characterization: SPICE in, Liberty (.lib) out, in parallel."
+license = "Apache-2.0"
+authors = ["Vyges <https://vyges.com/contact>"]
+homepage = "https://vyges.com"
+repository = "https://github.com/vyges-tools/char"
+
+# std-only (no external crates) so the core builds/tests offline; loom is std-only too and
+# supplies the shared thread rule. The structured-events path (`vyges-events`, which brings serde)
+# is OPT-IN — `--features events` — so the default build stays std-only, as decided; without it
+# the same messages print as plain lines.
+[dependencies]
+vyges-loom = { git = "https://github.com/vyges-tools/loom", branch = "main" }
+vyges-events = { git = "https://github.com/vyges-tools/events.git", branch = "main", default-features = false, optional = true }
+
+[features]
+# The command-line entry built into the library too (`cli_main`), for the suite binaries
+# that link every engine and run the one they are invoked as.
+suite = []
+default = []
+events = ["dep:vyges-events"]
+
+[[bin]]
+name = "vyges-char"
+path = "src/main.rs"
+
+[lib]
+name = "vyges_char"
+path = "src/lib.rs"
+
+# The shared lint list (vyges-tools-internal docs/rust-style-guide.md §7); no unsafe in this crate.
+[lints.rust]
+unsafe_code = "forbid"
+unsafe_op_in_unsafe_fn = "deny"
+
+[lints.clippy]
+undocumented_unsafe_blocks = "deny"
+ptr_arg = "warn"
+borrowed_box = "warn"
+len_without_is_empty = "warn"
+new_without_default = "warn"
+wrong_self_convention = "warn"
+should_implement_trait = "warn"
+type_complexity = "allow"
